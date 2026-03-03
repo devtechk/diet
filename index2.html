@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏋️ Piano Massa Pulita — fathergym</title>
+<style>
+  :root {
+    --bg: #0f0f13;
+    --card: #1a1a22;
+    --accent: #f97316;
+    --accent2: #3b82f6;
+    --green: #22c55e;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --border: #2d2d3a;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; line-height: 1.6; }
+
+  header {
+    background: linear-gradient(135deg, #1a1a22 0%, #0f0f13 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 20px 16px 16px;
+    text-align: center;
+    position: sticky; top: 0; z-index: 100;
+  }
+  header h1 { font-size: 1.4rem; color: var(--accent); font-weight: 800; letter-spacing: -0.5px; }
+  header p { color: var(--muted); font-size: 0.8rem; margin-top: 2px; }
+
+  .container { max-width: 700px; margin: 0 auto; padding: 16px; }
+
+  /* MACRO BANNER */
+  .macro-banner {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    margin-bottom: 16px;
+  }
+  .macro-card {
+    background: var(--card); border-radius: var(--radius);
+    padding: 12px 8px; text-align: center;
+    border: 1px solid var(--border);
+  }
+  .macro-card .val { font-size: 1.4rem; font-weight: 800; color: var(--accent); }
+  .macro-card .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .macro-card.blue .val { color: var(--accent2); }
+  .macro-card.green .val { color: var(--green); }
+
+  /* DAY TOGGLE */
+  .day-toggle {
+    display: flex; gap: 8px; margin-bottom: 16px;
+  }
+  .day-btn {
+    flex: 1; padding: 10px; border: none; border-radius: var(--radius);
+    font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.2s;
+    background: var(--card); color: var(--muted); border: 1px solid var(--border);
+  }
+  .day-btn.active-on { background: var(--accent); color: white; border-color: var(--accent); }
+  .day-btn.active-off { background: var(--accent2); color: white; border-color: var(--accent2); }
+
+  /* SECTIONS */
+  .section { margin-bottom: 10px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+  .section-header {
+    background: var(--card); padding: 14px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer; user-select: none; transition: background 0.2s;
+  }
+  .section-header:hover { background: #22222e; }
+  .section-title { font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+  .section-badge { background: var(--accent); color: white; font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; font-weight: 700; }
+  .section-badge.blue { background: var(--accent2); }
+  .section-badge.green { background: var(--green); }
+  .chevron { font-size: 0.9rem; color: var(--muted); transition: transform 0.3s; }
+  .section.open .chevron { transform: rotate(180deg); }
+  .section-body { display: none; padding: 0 16px 16px; background: #13131a; }
+  .section.open .section-body { display: block; }
+
+  /* MEAL CARD */
+  .meal-card {
+    background: var(--card); border-radius: 10px; padding: 14px;
+    margin-top: 12px; border: 1px solid var(--border);
+  }
+  .meal-card h3 { font-size: 0.95rem; color: var(--accent); margin-bottom: 8px; }
+  .meal-card.blue h3 { color: var(--accent2); }
+  .food-list { list-style: none; }
+  .food-list li { padding: 3px 0; color: var(--text); font-size: 0.88rem; }
+  .food-list li::before { content: "• "; color: var(--accent); }
+  .meal-card.blue .food-list li::before { color: var(--accent2); }
+
+  .macro-row {
+    display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap;
+  }
+  .macro-pill {
+    padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;
+  }
+  .prot { background: #f9731620; color: var(--accent); border: 1px solid #f9731640; }
+  .carb { background: #3b82f620; color: var(--accent2); border: 1px solid #3b82f640; }
+  .fat  { background: #a855f720; color: #a855f7; border: 1px solid #a855f740; }
+  .kcal { background: #22c55e20; color: var(--green); border: 1px solid #22c55e40; }
+
+  /* OPTIONS */
+  .opt-tabs { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+  .opt-tab { padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; background: #22222e; color: var(--muted); border: 1px solid var(--border); transition: all 0.2s; }
+  .opt-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .opt-content { display: none; }
+  .opt-content.show { display: block; }
+
+  /* AXIOMS */
+  .axiom { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+  .axiom:last-child { border-bottom: none; }
+  .axiom-num { background: var(--accent); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; flex-shrink: 0; margin-top: 2px; }
+  .axiom p { font-size: 0.88rem; }
+  .axiom strong { color: var(--accent); }
+
+  /* PROGRESS TABLE */
+  .prog-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  .prog-table th { text-align: left; color: var(--muted); font-size: 0.75rem; text-transform: uppercase; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  .prog-table td { padding: 8px; font-size: 0.88rem; border-bottom: 1px solid #1e1e28; }
+  .prog-table tr:last-child td { border-bottom: none; }
+  .prog-table td:last-child { color: var(--green); font-weight: 700; }
+
+  /* TIMELINE */
+  .timeline { margin-top: 12px; }
+  .tl-item { display: flex; gap: 12px; margin-bottom: 16px; position: relative; }
+  .tl-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 4px; position: relative; z-index: 1; }
+  .tl-dot.blue { background: var(--accent2); }
+  .tl-dot.purple { background: #a855f7; }
+  .tl-line { position: absolute; left: 6px; top: 18px; bottom: -12px; width: 2px; background: var(--border); }
+  .tl-content h4 { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+  .tl-content p { font-size: 0.82rem; color: var(--muted); margin-top: 2px; }
+  .tl-content .tl-stop { color: var(--red); font-size: 0.78rem; }
+
+  /* ALERT CARDS */
+  .alert { border-radius: 10px; padding: 10px 14px; margin-top: 10px; display: flex; gap: 10px; align-items: flex-start; font-size: 0.88rem; }
+  .alert.green { background: #22c55e15; border: 1px solid #22c55e40; }
+  .alert.red { background: #ef444415; border: 1px solid #ef444440; }
+  .alert.orange { background: #f9731615; border: 1px solid #f9731640; }
+  .alert-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+  /* MONITORING */
+  .mon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .mon-card { background: var(--card); border-radius: 10px; padding: 12px; border: 1px solid var(--border); }
+  .mon-card .icon { font-size: 1.5rem; margin-bottom: 4px; }
+  .mon-card h4 { font-size: 0.85rem; font-weight: 700; color: var(--text); }
+  .mon-card p { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+  .mon-card .target { font-size: 0.78rem; color: var(--green); font-weight: 600; margin-top: 4px; }
+
+  .off-note { background: #3b82f610; border: 1px solid #3b82f630; border-radius: 8px; padding: 8px 12px; margin-top: 10px; font-size: 0.82rem; color: var(--accent2); }
+
+  /* DAY-SPECIFIC VISIBILITY */
+  .only-on { }
+  .only-off { display: none; }
+  body.day-off .only-on { display: none; }
+  body.day-off .only-off { display: block; }
+
+  .totals-row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 14px;
+  }
+  .total-cell { background: var(--card); border-radius: 8px; padding: 10px 6px; text-align: center; border: 1px solid var(--border); }
+  .total-cell .n { font-size: 1.1rem; font-weight: 800; color: var(--accent); }
+  .total-cell.blue .n { color: var(--accent2); }
+  .total-cell.purple .n { color: #a855f7; }
+  .total-cell.green .n { color: var(--green); }
+  .total-cell .l { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏋️ Piano Massa Pulita</h1>
+  <p>PPL Split · Ipertrofia + Forza · fathergym</p>
+</header>
+
+<div class="container">
+
+  <!-- MACRO BANNER -->
+  <div class="macro-banner">
+    <div class="macro-card">
+      <div class="val">145-150g</div>
+      <div class="lbl">🥩 Proteine</div>
+    </div>
+    <div class="macro-card blue" id="carbo-banner">
+      <div class="val" id="carbo-val">350-360g</div>
+      <div class="lbl">🍝 Carbo</div>
+    </div>
+    <div class="macro-card green">
+      <div class="val" id="kcal-banner">~2900</div>
+      <div class="lbl">⚡ Kcal</div>
+    </div>
+  </div>
+
+  <!-- DAY TOGGLE -->
+  <div class="day-toggle">
+    <button class="day-btn active-on" id="btn-on" onclick="setDay('on')">🏋️ Giorno ON</button>
+    <button class="day-btn" id="btn-off" onclick="setDay('off')">😴 Giorno OFF</button>
+  </div>
+
+  <!-- ASSIOMI -->
+  <div class="section open" id="sec-axioms">
+    <div class="section-header" onclick="toggle('sec-axioms')">
+      <div class="section-title">⚡ Assiomi Fondamentali</div>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="axiom"><div class="axiom-num">1</div><p><strong>PROTEINE 140-150g fissi</strong> — anche OFF, anche giorno di sgarro</p></div>
+      <div class="axiom"><div class="axiom-num">2</div><p><strong>GRASSI MAI sotto 90g</strong> → testosterone + ormoni anabolici</p></div>
+      <div class="axiom"><div class="axiom-num">3</div><p><strong>GIORNO ON:</strong> +100g carbo nel pre-workout (60-90 min prima)</p></div>
+      <div class="axiom"><div class="axiom-num">4</div><p><strong>GIORNO OFF:</strong> salta pre-workout, riduci pasta/patate a cena</p></div>
+      <div class="axiom"><div class="axiom-num">5</div><p><strong>PESATA</strong> lunedì mattina → +300-500g/sett = massa pulita ✅</p></div>
+      <div class="axiom"><div class="axiom-num">6</div><p><strong>SGARRO:</strong> max 1/sett — proteine SEMPRE fisse</p></div>
+      <div class="axiom"><div class="axiom-num">7</div><p><strong>OLIO:</strong> 20g pranzo + 20g cena (NON 10g) → fondamentale per i grassi</p></div>
+    </div>
+  </div>
+
+  <!-- PASTI -->
+  <div class="section open" id="sec-pasti">
+    <div class="section-header" onclick="toggle('sec-pasti')">
+      <div class="section-title">🍽️ Piano Pasti <span class="section-badge" id="badge-pasti">ON</span></div>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+
+      <!-- COLAZIONE -->
+      <div class="meal-card">
+        <h3>☀️ Colazione — Fisso</h3>
+        <ul class="food-list">
+          <li>250ml latte parzialmente scremato</li>
+          <li>1 misurino whey (~23g proteine)</li>
+          <li>70g fiocchi d'avena</li>
+          <li>30g mandorle</li>
+        </ul>
+        <div class="macro-row">
+          <span class="macro-pill prot">🥩 35g prot</span>
+          <span class="macro-pill carb">🍝 75g carbo</span>
+          <span class="macro-pill fat">🧈 29g grassi</span>
+          <span class="macro-pill kcal">⚡ 710 kcal</span>
+        </div>
+      </div>
+
+      <!-- SPUNTINO -->
+      <div class="meal-card">
+        <h3>🍌 Spuntino — Fisso</h3>
+        <ul class="food-list">
+          <li>170g yogurt greco 0%</li>
+          <li>50g muesli</li>
+          <li>1 banana media (⚠️ no banana? → muesli 70g tot)</li>
+        </ul>
+        <div class="macro-row">
+          <span class="macro-pill prot">🥩 22g prot</span>
+          <span class="macro-pill carb">🍝 63g carbo</span>
+          <span class="macro-pill fat">🧈 8g grassi</span>
+          <span class="macro-pill kcal">⚡ 410 kcal</span>
+        </div>
+      </div>
+
+      <!-- PRANZO -->
+      <div class="meal-card">
+        <h3>🍝 Pranzo — Scegli opzione</h3>
+        <div class="opt-tabs">
+          <button class="opt-tab active" onclick="selectOpt(this, 'pranzo', 'p1')">Pasta+Tonno</button>
+          <button class="opt-tab" onclick="selectOpt(this, 'pranzo', 'p2')">Riso+Pollo</button>
+          <button class="opt-tab" onclick="selectOpt(this, 'pranzo', 'p3')">Gnocchi</button>
+        </div>
+        <div class="opt-content show" id="pranzo-p1">
+          <ul class="food-list" style="margin-top:10px">
+            <li>120g pasta cruda</li><li>100g tonno O 90g sgombro</li><li>Verdure libere</li><li>20g olio EVO</li>
+          </ul>
+          <div class="macro-row"><span class="macro-pill prot">🥩 38g</span><span class="macro-pill carb">🍝 86g</span><span class="macro-pill fat">🧈 25g</span><span class="macro-pill kcal">⚡ 714 kcal</span></div>
+        </div>
+        <div class="opt-content" id="pranzo-p2">
+          <ul class="food-list" style="margin-top:10px">
+            <li>120g riso basmati</li><li>150g pollo grigliato</li><li>Verdure libere</li><li>20g olio EVO</li>
+          </ul>
+          <div class="macro-row"><span class="macro-pill prot">🥩 42g</span><span class="macro-pill carb">🍝 90g</span><span class="macro-pill fat">🧈 22g</span><span class="macro-pill kcal">⚡ 710 kcal</span></div>
+              <div style="margin-top:8px; padding:6px 10px; background:#ffffff08; border-radius:6px; font-size:0.75rem; color:var(--muted);">
+                🎯 <strong style="color:var(--accent);">TARGET:</strong> 35g prot · 75g carbo · 29g grassi · 710 kcal
+              </div>
+        </div>
+        <div class="opt-content" id="pranzo-p3">
+          <ul class="food-list" style="margin-top:10px">
+            <li>300g gnocchi</li><li>100g tonno naturale</li><li>Pomodorini + verdure</li><li>20g olio EVO</li>
+          </ul>
+          <div class="macro-row"><span class="macro-pill prot">🥩 35g</span><span class="macro-pill carb">🍝 85g</span><span class="macro-pill fat">🧈 24g</span><span class="macro-pill kcal">⚡ 680 kcal</span></div>
+        </div>
+              <div style="margin-top:8px; padding:6px 10px; background:#ffffff08; border-radius:6px; font-size:0.75rem; color:var(--muted);">
+          🎯 <strong style="color:var(--accent);">TARGET PRANZO:</strong> ~38g prot · ~87g carbo · <strong style="color:#ef4444;">25g grassi (olio 20g!)</strong> · ~714 kcal
+        </div>
+
+      <!-- PRE-WORKOUT -->
+      <div class="meal-card only-on" id="preworkout-card">
+        <h3>💪 Pre-Workout <span style="font-size:0.75rem; color:var(--muted)">(60-90 min prima)</span></h3>
+        <ul class="food-list">
+          <li>70g pane integrale</li>
+          <li>150ml albume (omelette)</li>
+          <li>1 mela o pera</li>
+        </ul>
+        <div class="macro-row">
+          <span class="macro-pill prot">🥩 20g prot</span>
+          <span class="macro-pill carb">🍝 60g carbo</span>
+          <span class="macro-pill fat">🧈 3g grassi</span>
+          <span class="macro-pill kcal">⚡ 335 kcal</span>
+        </div>
+      </div>
+      <div class="off-note only-off">💪 <strong>Pre-workout: SALTA oggi</strong> — giorno OFF, elimina questo pasto</div>
+
+      <!-- CENA -->
+      <div class="meal-card">
+        <h3>🌙 Cena — Scegli opzione</h3>
+        <div class="opt-tabs">
+          <button class="opt-tab active" onclick="selectOpt(this, 'cena', 'c1')">Uova+Patate</button>
+          <button class="opt-tab" onclick="selectOpt(this, 'cena', 'c2')">Pesce+Pasta</button>
+          <button class="opt-tab" onclick="selectOpt(this, 'cena', 'c3')">Pasta+Tonno</button>
+        </div>
+        <div class="opt-content show" id="cena-c1">
+          <ul class="food-list" style="margin-top:10px">
+            <li>2 uova intere</li>
+            <li>150ml albume</li>
+            <li class="only-on">300g patate (giorno ON)</li>
+            <li class="only-off" style="display:none">200g patate (giorno OFF)</li>
+            <li>Verdure</li>
+            <li>20g olio EVO</li>
+          </ul>
+          <div class="macro-row"><span class="macro-pill prot">🥩 35g</span><span class="macro-pill carb">🍝 72g</span><span class="macro-pill fat">🧈 30g</span><span class="macro-pill kcal">⚡ 700 kcal</span></div>
+        </div>
+        <div class="opt-content" id="cena-c2">
+          <ul class="food-list" style="margin-top:10px">
+            <li>150g sgombro o merluzzo</li>
+            <li class="only-on">80g pasta (giorno ON)</li>
+            <li class="only-off" style="display:none">50g pasta (giorno OFF)</li>
+            <li>Verdure</li>
+            <li>20g olio EVO</li>
+          </ul>
+          <div class="macro-row"><span class="macro-pill prot">🥩 38g</span><span class="macro-pill carb">🍝 65g</span><span class="macro-pill fat">🧈 28g</span><span class="macro-pill kcal">⚡ 670 kcal</span></div>
+        </div>
+        <div class="opt-content" id="cena-c3">
+          <ul class="food-list" style="margin-top:10px">
+            <li class="only-on">100g pasta (giorno ON)</li>
+            <li class="only-off" style="display:none">70g pasta (giorno OFF)</li>
+            <li>100g tonno naturale</li>
+            <li>Pomodorini + verdure</li>
+            <li>20g olio EVO</li>
+          </ul>
+          <div class="macro-row"><span class="macro-pill prot">🥩 35g</span><span class="macro-pill carb">🍝 85g</span><span class="macro-pill fat">🧈 25g</span><span class="macro-pill kcal">⚡ 680 kcal</span></div>
+        </div>
+      </div>
+
+
+      <!-- PRE-NANNA -->
+      <div class="section" id="sec-prenanna">
+        <div class="section-header" onclick="toggle('sec-prenanna')">
+          <div class="section-title">🌙 Pre-Nanna <span class="section-badge" id="badge-prenanna" style="background:#7c3aed;">OPZIONALE</span></div>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="section-body">
+
+          <!-- ON -->
+          <div class="only-on">
+            <div class="meal-card" style="border-color:#f97316;">
+              <h3>🌙 Pre-Nanna — Giorno ON</h3>
+              <div style="font-size:0.78rem; color:var(--muted); margin-bottom:8px;">Solo se mancano carbo o kcal a fine giornata</div>
+              <ul class="food-list">
+                <li>250ml latte parz. scremato</li>
+                <li>50g muesli o cereali integrali</li>
+                <li>30g mandorle <span style="color:var(--accent); font-size:0.75rem;">← per i grassi!</span></li>
+              </ul>
+              <div class="macro-row">
+                <span class="macro-pill prot">🎯 10g prot</span>
+                <span class="macro-pill carb">🎯 52g carbo</span>
+                <span class="macro-pill fat">🎯 21g grassi</span>
+                <span class="macro-pill kcal">⚡ 380 kcal</span>
+              </div>
+              <div style="margin-top:10px; padding:8px; background:#f9731615; border-radius:8px; font-size:0.8rem;">
+                ⚠️ <strong>Salta se hai già raggiunto i macro giornalieri</strong><br>
+                ✅ Usa se grassi &lt; 80g o kcal &lt; 2600 a fine giornata<br>
+                🚫 Evita pane/pasta di sera se li hai già mangiati
+              </div>
+            </div>
+          </div>
+
+          <!-- OFF -->
+          <div class="only-off">
+            <div class="meal-card blue" style="border-color:#3b82f6;">
+              <h3>🌙 Pre-Nanna — Giorno OFF</h3>
+              <div style="font-size:0.78rem; color:var(--muted); margin-bottom:8px;">Solo se hai ancora fame o mancano proteine</div>
+              <ul class="food-list">
+                <li>200g fiocchi di latte magri</li>
+                <li>15g noci o mandorle</li>
+              </ul>
+              <div class="macro-row">
+                <span class="macro-pill prot">🎯 22g prot</span>
+                <span class="macro-pill carb">🎯 8g carbo</span>
+                <span class="macro-pill fat">🎯 12g grassi</span>
+                <span class="macro-pill kcal">⚡ 220 kcal</span>
+              </div>
+              <div style="margin-top:10px; padding:8px; background:#3b82f615; border-radius:8px; font-size:0.8rem;">
+                ⚠️ <strong>Giorno OFF: carboidrati già ridotti</strong><br>
+                ✅ Fiocchi di latte = proteina lenta, ideale per la notte<br>
+                🚫 Evita carbo extra — sei in riposo
+              </div>
+            </div>
+          </div>
+
+        </div>
+              <div class="only-on" style="margin-top:8px; padding:6px 10px; background:#ffffff08; border-radius:6px; font-size:0.75rem; color:var(--muted);">
+          🎯 <strong style="color:var(--accent);">TARGET CENA ON:</strong> ~35g prot · ~72g carbo · <strong style="color:#ef4444;">30g grassi (olio 20g!)</strong> · ~700 kcal
+        </div>
+        <div class="only-off" style="margin-top:8px; padding:6px 10px; background:#3b82f615; border-radius:6px; font-size:0.75rem; color:var(--muted);">
+          🎯 <strong style="color:#3b82f6;">TARGET CENA OFF:</strong> ~35g prot · ~50g carbo · <strong style="color:#ef4444;">30g grassi (olio 20g!)</strong> · ~580 kcal
+        </div>
+
+      <!-- TOTALI -->
+      <div style="margin-top:14px; padding: 14px; background: var(--card); border-radius: 10px; border: 2px solid var(--accent);">
+        <div style="font-size:0.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">📊 Totali Giornalieri da Raggiungere</div>
+        <div class="totals-row">
+          <div class="total-cell"><div class="n" id="tot-prot">150g</div><div class="l">Prot</div></div>
+          <div class="total-cell blue"><div class="n" id="tot-carb">356g</div><div class="l">Carbo</div></div>
+          <div class="total-cell purple"><div class="n">95g</div><div class="l">Grassi</div></div>
+          <div class="total-cell green"><div class="n" id="tot-kcal">2869</div><div class="l">Kcal</div></div>
+        </div>
+        <div style="font-size:0.78rem; margin-top:8px;" id="tot-note" class="only-on">✅ Perfetto per giorno allenamento!</div>
+        <div style="font-size:0.78rem; margin-top:8px; color: var(--accent2); display:none" id="tot-note-off" class="only-off">😴 Riduci carbo a cena · giorno riposo</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PROGRESSI -->
+  <div class="section" id="sec-prog">
+    <div class="section-header" onclick="toggle('sec-prog')">
+      <div class="section-title">📈 Progressi <span class="section-badge green">30 Gen → 3 Mar</span></div>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <table class="prog-table">
+        <thead><tr><th>Parametro</th><th>30 Gen</th><th>3 Mar</th><th>Variazione</th></tr></thead>
+        <tbody>
+          <tr><td>⚖️ Peso</td><td>73.5 kg</td><td>76.7 kg</td><td>+3.2 kg ✅</td></tr>
+          <tr><td>📊 BF%</td><td>15.7%</td><td>16.5%</td><td>+0.8% ✅</td></tr>
+          <tr><td>💪 Muscoli</td><td>~29.8 kg</td><td>~31.1 kg</td><td>+1.3 kg 🎉</td></tr>
+          <tr><td>📐 Rapporto M/G</td><td>—</td><td>—</td><td>1.2:1 ✅</td></tr>
+          <tr><td>🚀 Velocità</td><td>—</td><td>—</td><td>+0.7 kg/sett ✅</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="section" id="sec-timeline">
+    <div class="section-header" onclick="toggle('sec-timeline')">
+      <div class="section-title">🗓️ Timeline Fase Massa</div>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="timeline" style="margin-top:12px; padding-left:8px;">
+        <div class="tl-item">
+          <div style="position:relative"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🟠 ORA → Fine Aprile (8 settimane)</h4>
+            <p>Continua massa pulita · Target peso ~78-79 kg</p>
+            <p class="tl-stop">STOP se BF supera 17%</p>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div style="position:relative"><div class="tl-dot blue"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🔵 Opzione estesa (+4 settimane max)</h4>
+            <p>Solo se BF &lt; 17% · Valuta ogni lunedì</p>
+            <p class="tl-stop">STOP max 17.5% BF</p>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div style="position:relative"><div class="tl-dot purple"></div></div>
+          <div class="tl-content">
+            <h4>🟣 Fase CUT (6-8 settimane)</h4>
+            <p>Definizione · Target 10-12% BF · Preserva muscolo</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MONITORAGGIO -->
+  <div class="section" id="sec-mon">
+    <div class="section-header" onclick="toggle('sec-mon')">
+      <div class="section-title">📏 Monitoraggio Settimanale</div>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="mon-grid">
+        <div class="mon-card">
+          <div class="icon">⚖️</div>
+          <h4>Pesata</h4>
+          <p>Lunedì mattina a digiuno</p>
+          <div class="target">+300-500g/sett ✅</div>
+          <p style="font-size:0.75rem; color:var(--red); margin-top:3px">&gt;700g/sett → riduci kcal</p>
+        </div>
+        <div class="mon-card">
+          <div class="icon">📸</div>
+          <h4>Foto</h4>
+          <p>Ogni 2 settimane</p>
+          <div class="target">Front + lat + schiena</div>
+          <p style="font-size:0.75rem; color:var(--muted); margin-top:3px">Stessa luce e pose</p>
+        </div>
+        <div class="mon-card">
+          <div class="icon">📊</div>
+          <h4>BF%</h4>
+          <p>Ogni lunedì con Omron</p>
+          <div class="target" style="color:var(--red)">STOP se &gt; 17% → CUT</div>
+        </div>
+        <div class="mon-card">
+          <div class="icon">💪</div>
+          <h4>Forza</h4>
+          <p>Ogni workout</p>
+          <div class="target">Carichi devono salire</div>
+          <p style="font-size:0.75rem; color:var(--muted); margin-top:3px">Cali → +50-100 kcal</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEGNALI CUT -->
+  <div class="section" id="sec-cut">
+    <div class="section-header" onclick="toggle('sec-cut')">
+      <div class="section-title">🛑 Segnali per Passare a CUT</div>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-body" style="padding-top:12px">
+      <div class="alert red"><span class="alert-icon">❌</span><span>BF supera 17% → STOP massa, inizia cut immediatamente</span></div>
+      <div class="alert red"><span class="alert-icon">❌</span><span>Peso sale &gt;1kg/sett per 2 settimane di fila → troppo veloce</span></div>
+      <div class="alert red"><span class="alert-icon">❌</span><span>Ti vedi troppo gonfio/liscio → lo specchio non mente</span></div>
+      <div class="alert red"><span class="alert-icon">❌</span><span>Forza non sale più → plateau metabolico</span></div>
+      <div class="alert green"><span class="alert-icon">✅</span><span>Se tutto ok → continua fino a fine aprile poi valuta</span></div>
+    </div>
+  </div>
+
+  <!-- REGOLE -->
+  <div class="section" id="sec-rules">
+    <div class="section-header" onclick="toggle('sec-rules')">
+      <div class="section-title">📋 Regole Fondamentali</div>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-body" style="padding-top:12px">
+      <div class="alert orange"><span class="alert-icon">🍕</span><span><strong>Sgarro:</strong> max 1/sett → proteine 140g SEMPRE fissi, preferisci pizza o dolce</span></div>
+      <div class="alert orange"><span class="alert-icon">📏</span><span><strong>Monitoraggio:</strong> pesata lunedì + foto ogni 2 sett + circonferenze</span></div>
+      <div class="alert orange"><span class="alert-icon">🎯</span><span><strong>Target:</strong> +300-500g/sett peso = massa pulita · BF stabile o -0.2%/sett ok</span></div>
+      <div class="alert orange"><span class="alert-icon">⚠️</span><span><strong>Olio:</strong> 20g pranzo + 20g cena SEMPRE — grassi fondamentali per gli ormoni!</span></div>
+    </div>
+  </div>
+
+  <div style="height:30px"></div>
+</div>
+
+<script>
+function toggle(id) {
+  const s = document.getElementById(id);
+  s.classList.toggle('open');
+}
+
+function setDay(day) {
+  const body = document.body;
+  const btnOn = document.getElementById('btn-on');
+  const btnOff = document.getElementById('btn-off');
+  const badge = document.getElementById('badge-pasti');
+  const carboVal = document.getElementById('carbo-val');
+  const kcalBanner = document.getElementById('kcal-banner');
+  const totProt = document.getElementById('tot-prot');
+  const totCarb = document.getElementById('tot-carb');
+  const totKcal = document.getElementById('tot-kcal');
+  const totNote = document.getElementById('tot-note');
+  const totNoteOff = document.getElementById('tot-note-off');
+
+  if (day === 'on') {
+    body.classList.remove('day-off');
+    btnOn.className = 'day-btn active-on';
+    btnOff.className = 'day-btn';
+    badge.textContent = 'ON'; badge.className = 'section-badge';
+    carboVal.textContent = '350-360g';
+    kcalBanner.textContent = '~2900';
+    totProt.textContent = '150g'; totCarb.textContent = '356g'; totKcal.textContent = '2869';
+    totNote.style.display = 'block'; totNote.style.color = 'var(--green)';
+    totNoteOff.style.display = 'none';
+  } else {
+    body.classList.add('day-off');
+    btnOn.className = 'day-btn';
+    btnOff.className = 'day-btn active-off';
+    badge.textContent = 'OFF'; badge.className = 'section-badge blue';
+    carboVal.textContent = '260g';
+    kcalBanner.textContent = '~2500';
+    totProt.textContent = '145g'; totCarb.textContent = '260g'; totKcal.textContent = '2490';
+    totNote.style.display = 'none';
+    totNoteOff.style.display = 'block';
+  }
+
+  // update cena OFF items
+  document.querySelectorAll('.only-off').forEach(el => {
+    el.style.display = day === 'off' ? 'block' : 'none';
+  });
+  document.querySelectorAll('.only-on').forEach(el => {
+    el.style.display = day === 'on' ? 'block' : 'none';
+  });
+}
+
+function selectOpt(btn, group, id) {
+  // deactivate all tabs in group
+  btn.closest('.meal-card').querySelectorAll('.opt-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  // hide all contents in group
+  btn.closest('.meal-card').querySelectorAll('.opt-content').forEach(c => c.classList.remove('show'));
+  document.getElementById(group + '-' + id).classList.add('show');
+}
+</script>
+</body>
+</html>
