@@ -2,6 +2,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🏋️ Piano Massa Pulita — fathergym</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <style>
   :root {
     --bg: #0f0f13;
@@ -48,6 +50,8 @@
   /* DAY TOGGLE */
   .day-toggle {
     display: flex; gap: 8px; margin-bottom: 16px;
+    position: sticky; top: 0; z-index: 99;
+    background: transparent; padding: 8px 0;
   }
   .day-btn {
     flex: 1; padding: 10px; border: none; border-radius: var(--radius);
@@ -145,6 +149,29 @@
   .mon-card .target { font-size: 0.78rem; color: var(--green); font-weight: 600; margin-top: 4px; }
 
   .off-note { background: #3b82f610; border: 1px solid #3b82f630; border-radius: 8px; padding: 8px 12px; margin-top: 10px; font-size: 0.82rem; color: var(--accent2); }
+
+  /* FORM INPUT */
+  .form-group { margin-bottom: 14px; }
+  .form-label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-input, .form-input-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .form-input input { flex: 1; min-width: 100px; padding: 8px 12px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; }
+  .form-input input::placeholder { color: var(--muted); }
+  .form-input input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px #f9731620; }
+  .form-btn { padding: 10px 16px; background: var(--accent); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; }
+  .form-btn:hover { background: #e66a1a; }
+  .form-btn.secondary { background: var(--accent2); margin-left: 6px; }
+  .form-btn.secondary:hover { background: #3373d6; }
+  .form-btn.danger { background: var(--red); }
+  .form-btn.danger:hover { background: #d33333; }
+
+  /* DATA TABLE */
+  .data-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.82rem; }
+  .data-table th { text-align: left; color: var(--muted); font-size: 0.7rem; text-transform: uppercase; padding: 8px 6px; border-bottom: 1px solid var(--border); font-weight: 700; }
+  .data-table td { padding: 10px 6px; border-bottom: 1px solid #1e1e28; }
+  .data-table tr:hover { background: #18181f; }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-del { color: var(--red); cursor: pointer; font-weight: 700; font-size: 0.75rem; }
+  .data-del:hover { text-decoration: underline; }
 
   /* DAY-SPECIFIC VISIBILITY */
   .only-on { }
@@ -527,10 +554,96 @@
     </div>
   </div>
 
+  <!-- TRACKER DATI -->
+  <div class="section open" id="sec-tracker">
+    <div class="section-header" onclick="toggle('sec-tracker')">
+      <div class="section-title">📊 Tracker Misurazioni</div>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      
+      <!-- FORM INPUT -->
+      <div style="background: var(--card); border-radius: 10px; padding: 14px; border: 1px solid var(--border); margin-bottom: 16px;">
+        <div style="font-size:0.9rem; font-weight:700; color:var(--accent); margin-bottom:12px;">➕ Registra nuova misurazione</div>
+        
+        <div class="form-group">
+          <label class="form-label">Peso (kg)</label>
+          <div class="form-input"><input type="number" id="inp-peso" placeholder="es: 76.5" step="0.1" min="0"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Visceral Fat (%)</label>
+          <div class="form-input"><input type="number" id="inp-vf" placeholder="es: 5.2" step="0.1" min="0" max="100"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Muscle (kg)</label>
+          <div class="form-input"><input type="number" id="inp-muscle" placeholder="es: 31.5" step="0.1" min="0"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Fat (kg / %)</label>
+          <div class="form-input">
+            <input type="number" id="inp-fat-kg" placeholder="kg: es: 12.5" step="0.1" min="0" style="flex: 0 0 45%;">
+            <input type="number" id="inp-fat-pct" placeholder="% (auto)" step="0.1" min="0" max="100" style="flex: 0 0 45%;">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">BMI</label>
+          <div class="form-input"><input type="number" id="inp-bmi" placeholder="es: 25.0" step="0.1" min="0"></div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 14px;">
+          <button class="form-btn" onclick="addMeasurement()">💾 Salva Misurazione</button>
+          <button class="form-btn secondary" onclick="exportData()">📥 Scarica JSON</button>
+          <button class="form-btn danger" onclick="clearAllData()" style="margin-left: auto;">🗑️ Cancella Tutto</button>
+        </div>
+      </div>
+
+      <!-- DATI VISUALIZZATI -->
+      <div style="font-size:0.9rem; font-weight:700; color:var(--text); margin-bottom:8px;">📈 Cronologia Misurazioni</div>
+      <div id="data-container" style="max-height: 400px; overflow-y: auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Data/Ora</th>
+              <th>Peso</th>
+              <th>V.F.</th>
+              <th>Muscle</th>
+              <th>Fat kg</th>
+              <th>Fat %</th>
+              <th>BMI</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="data-tbody">
+          </tbody>
+        </table>
+      </div>
+      <div id="data-empty" style="padding:20px; text-align:center; color:var(--muted); font-size:0.85rem;">
+        Nessuna misurazione registrata ancora. Aggiungi la prima!
+      </div>
+    </div>
+  </div>
+
   <div style="height:30px"></div>
 </div>
 
 <script>
+// Calcola dinamicamente la posizione del day-toggle dopo l'header
+function setDayTogglePosition() {
+  const header = document.querySelector('header');
+  const dayToggle = document.querySelector('.day-toggle');
+  if (header && dayToggle) {
+    const headerHeight = header.offsetHeight;
+    dayToggle.style.top = headerHeight + 'px';
+  }
+}
+
+window.addEventListener('load', setDayTogglePosition);
+window.addEventListener('resize', setDayTogglePosition);
+
 function toggle(id) {
   const s = document.getElementById(id);
   s.classList.toggle('open');
@@ -571,7 +684,6 @@ function setDay(day) {
     totNoteOff.style.display = 'block';
   }
 
-  // update cena OFF items
   document.querySelectorAll('.only-off').forEach(el => {
     el.style.display = day === 'off' ? 'block' : 'none';
   });
@@ -581,13 +693,163 @@ function setDay(day) {
 }
 
 function selectOpt(btn, group, id) {
-  // deactivate all tabs in group
   btn.closest('.meal-card').querySelectorAll('.opt-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
-  // hide all contents in group
   btn.closest('.meal-card').querySelectorAll('.opt-content').forEach(c => c.classList.remove('show'));
   document.getElementById(group + '-' + id).classList.add('show');
 }
+
+// ====== FIREBASE CONFIG ======
+const firebaseConfig = {
+  apiKey: "AIzaSyDEnctfRW_6nghGgLfIWoAe7Y8-Wk_f968",
+  authDomain: "diet-df690.firebaseapp.com",
+  databaseURL: "https://diet-df690-default-rtdb.firebaseio.com",
+  projectId: "diet-df690",
+  storageBucket: "diet-df690.firebasestorage.app",
+  messagingSenderId: "211424108641",
+  appId: "1:211424108641:web:99f28b7034a27fb08f4a20"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ====== TRACKER DATI (FIREBASE) ======
+let currentUser = 'antoninogiuliano'; // Usare un ID unico o chiedere username
+
+function addMeasurement() {
+  const peso = document.getElementById('inp-peso').value;
+  const vf = document.getElementById('inp-vf').value;
+  const muscle = document.getElementById('inp-muscle').value;
+  const fatKg = document.getElementById('inp-fat-kg').value;
+  const fatPct = document.getElementById('inp-fat-pct').value;
+  const bmi = document.getElementById('inp-bmi').value;
+
+  if (!peso || !vf || !muscle || (!fatKg && !fatPct) || !bmi) {
+    alert('❌ Compila tutti i campi!');
+    return;
+  }
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('it-IT');
+  const timeStr = now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+
+  const measurement = {
+    date: dateStr,
+    time: timeStr,
+    peso: parseFloat(peso),
+    vf: parseFloat(vf),
+    muscle: parseFloat(muscle),
+    fatKg: parseFloat(fatKg || 0),
+    fatPct: parseFloat(fatPct || 0),
+    bmi: parseFloat(bmi),
+    timestamp: new Date().getTime()
+  };
+
+  // Salva su Firebase
+  db.ref(`users/${currentUser}/measurements`).push(measurement, (error) => {
+    if (error) {
+      alert('❌ Errore nel salvataggio sulle server: ' + error.message);
+    } else {
+      // Clear inputs
+      document.getElementById('inp-peso').value = '';
+      document.getElementById('inp-vf').value = '';
+      document.getElementById('inp-muscle').value = '';
+      document.getElementById('inp-fat-kg').value = '';
+      document.getElementById('inp-fat-pct').value = '';
+      document.getElementById('inp-bmi').value = '';
+      alert('✅ Misurazione salvata su Firebase!');
+      renderMeasurements();
+    }
+  });
+}
+
+function renderMeasurements() {
+  const tbody = document.getElementById('data-tbody');
+  const empty = document.getElementById('data-empty');
+
+  tbody.innerHTML = '';
+
+  db.ref(`users/${currentUser}/measurements`).orderByChild('timestamp').once('value', (snapshot) => {
+    const data = snapshot.val();
+
+    if (!data || Object.keys(data).length === 0) {
+      empty.style.display = 'block';
+      return;
+    }
+
+    empty.style.display = 'none';
+
+    // Converti in array e ordina dal più recente al più vecchio
+    const measurements = Object.entries(data).map(([key, val]) => ({ id: key, ...val }));
+    measurements.sort((a, b) => b.timestamp - a.timestamp);
+
+    measurements.forEach(m => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td style="font-size:0.78rem; color:var(--accent);">${m.date}<br/><span style="color:var(--muted);">${m.time}</span></td>
+        <td><strong>${m.peso} kg</strong></td>
+        <td>${m.vf}%</td>
+        <td style="color:var(--green);">${m.muscle} kg</td>
+        <td>${m.fatKg} kg</td>
+        <td>${m.fatPct}%</td>
+        <td style="color:var(--accent2);">${m.bmi}</td>
+        <td style="text-align:right;"><span class="data-del" onclick="deleteMeasurement('${m.id}')">×</span></td>
+      `;
+      tbody.appendChild(row);
+    });
+  });
+}
+
+function deleteMeasurement(id) {
+  if (confirm('Vuoi eliminare questa misurazione?')) {
+    db.ref(`users/${currentUser}/measurements/${id}`).remove((error) => {
+      if (error) {
+        alert('❌ Errore nell\'eliminazione: ' + error.message);
+      } else {
+        alert('✅ Misurazione eliminata');
+        renderMeasurements();
+      }
+    });
+  }
+}
+
+function exportData() {
+  db.ref(`users/${currentUser}/measurements`).once('value', (snapshot) => {
+    const data = snapshot.val();
+    if (!data || Object.keys(data).length === 0) {
+      alert('⚠️ Nessun dato da esportare');
+      return;
+    }
+
+    const measurements = Object.values(data);
+    const json = JSON.stringify(measurements, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `fathergym_measurements_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
+
+function clearAllData() {
+  if (confirm('⚠️ Sei sicuro? Eliminerai TUTTI i dati registrati!')) {
+    db.ref(`users/${currentUser}/measurements`).remove((error) => {
+      if (error) {
+        alert('❌ Errore: ' + error.message);
+      } else {
+        renderMeasurements();
+        alert('✅ Dati eliminati');
+      }
+    });
+  }
+}
+
+// Aggiorna in tempo reale quando cambiano i dati (attiva render automaticamente al caricamento)
+db.ref(`users/${currentUser}/measurements`).on('value', () => {
+  renderMeasurements();
+});
 </script>
 
 </body></html>
