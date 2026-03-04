@@ -577,16 +577,18 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Muscle (kg)</label>
-          <div class="form-input"><input type="number" id="inp-muscle" placeholder="es: 31.5" step="0.1" min="0"></div>
+          <label class="form-label">RM (Kcal)</label>
+          <div class="form-input"><input type="number" id="inp-rm" placeholder="es: 2850" step="1" min="0"></div>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Fat (kg / %)</label>
-          <div class="form-input">
-            <input type="number" id="inp-fat-kg" placeholder="kg: es: 12.5" step="0.1" min="0" style="flex: 0 0 45%;">
-            <input type="number" id="inp-fat-pct" placeholder="% (auto)" step="0.1" min="0" max="100" style="flex: 0 0 45%;">
-          </div>
+          <label class="form-label">Muscle (%)</label>
+          <div class="form-input"><input type="number" id="inp-muscle" placeholder="es: 40.5" step="0.1" min="0" max="100"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Fat (%)</label>
+          <div class="form-input"><input type="number" id="inp-fat-pct" placeholder="es: 16.5" step="0.1" min="0" max="100"></div>
         </div>
 
         <div class="form-group">
@@ -608,11 +610,11 @@
           <thead>
             <tr>
               <th>Data/Ora</th>
-              <th>Peso</th>
-              <th>V.F.</th>
-              <th>Muscle</th>
-              <th>Fat kg</th>
-              <th>Fat %</th>
+              <th>Peso (kg)</th>
+              <th>V.F. (%)</th>
+              <th>RM (Kcal)</th>
+              <th>Muscle (%)</th>
+              <th>Fat (%)</th>
               <th>BMI</th>
               <th></th>
             </tr>
@@ -719,12 +721,12 @@ let currentUser = 'antoninogiuliano'; // Usare un ID unico o chiedere username
 function addMeasurement() {
   const peso = document.getElementById('inp-peso').value;
   const vf = document.getElementById('inp-vf').value;
+  const rm = document.getElementById('inp-rm').value;
   const muscle = document.getElementById('inp-muscle').value;
-  const fatKg = document.getElementById('inp-fat-kg').value;
   const fatPct = document.getElementById('inp-fat-pct').value;
   const bmi = document.getElementById('inp-bmi').value;
 
-  if (!peso || !vf || !muscle || (!fatKg && !fatPct) || !bmi) {
+  if (!peso || !vf || !rm || !muscle || !fatPct || !bmi) {
     alert('❌ Compila tutti i campi!');
     return;
   }
@@ -738,9 +740,9 @@ function addMeasurement() {
     time: timeStr,
     peso: parseFloat(peso),
     vf: parseFloat(vf),
+    rm: parseFloat(rm),
     muscle: parseFloat(muscle),
-    fatKg: parseFloat(fatKg || 0),
-    fatPct: parseFloat(fatPct || 0),
+    fatPct: parseFloat(fatPct),
     bmi: parseFloat(bmi),
     timestamp: new Date().getTime()
   };
@@ -753,8 +755,8 @@ function addMeasurement() {
       // Clear inputs
       document.getElementById('inp-peso').value = '';
       document.getElementById('inp-vf').value = '';
+      document.getElementById('inp-rm').value = '';
       document.getElementById('inp-muscle').value = '';
-      document.getElementById('inp-fat-kg').value = '';
       document.getElementById('inp-fat-pct').value = '';
       document.getElementById('inp-bmi').value = '';
       alert('✅ Misurazione salvata su Firebase!');
@@ -787,11 +789,11 @@ function renderMeasurements() {
       const row = document.createElement('tr');
       row.innerHTML = `
         <td style="font-size:0.78rem; color:var(--accent);">${m.date}<br/><span style="color:var(--muted);">${m.time}</span></td>
-        <td><strong>${m.peso} kg</strong></td>
-        <td>${m.vf}%</td>
-        <td style="color:var(--green);">${m.muscle} kg</td>
-        <td>${m.fatKg} kg</td>
-        <td>${m.fatPct}%</td>
+        <td><strong>${m.peso}</strong></td>
+        <td>${m.vf}</td>
+        <td style="color:var(--accent2);">${m.rm}</td>
+        <td style="color:var(--green);">${m.muscle}</td>
+        <td>${m.fatPct}</td>
         <td style="color:var(--accent2);">${m.bmi}</td>
         <td style="text-align:right;"><span class="data-del" onclick="deleteMeasurement('${m.id}')">×</span></td>
       `;
