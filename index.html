@@ -736,7 +736,9 @@
           <ul class="food-list">
             <li>200g pesce magro (merluzzo, spigola) o 2 uova + 200ml albume</li>
             <li class="cut-on" style="display:block">250g patate o 80g pane</li>
-            <li class="cut-off">150g patate o solo verdure se sazio</li>
+            <li class="cut-off" style="color:var(--accent2)">😴 <strong>Giorno OFF:</strong> niente patate — solo verdure abbondanti + proteina.<br>
+              <span style="font-size:0.82rem; color:var(--muted)">Se hai molta fame: aggiungi 100g legumi cotti (ceci/lenticchie)</span>
+            </li>
             <li>Verdure abbondanti</li>
             <li>10g olio EVO</li>
           </ul>
@@ -1212,6 +1214,9 @@ function setCutDay(day) {
   const totFat = document.getElementById('cut-tot-fat');
   const totKcal = document.getElementById('cut-tot-kcal');
   const totNote = document.getElementById('cut-tot-note');
+  const bannerProt = document.getElementById('cut-prot-banner');
+  const bannerCarb = document.getElementById('cut-carb-banner');
+  const bannerKcal = document.getElementById('cut-kcal-banner');
 
   if (day === 'on') {
     btnOn.className = 'day-btn active-on';
@@ -1220,6 +1225,9 @@ function setCutDay(day) {
     badgeMeals.textContent = 'ON'; badgeMeals.className = 'section-badge green';
     prot.textContent = '165g'; carb.textContent = '240g'; fat.textContent = '60g'; kcal.textContent = '2180';
     totProt.textContent = '165g'; totCarb.textContent = '240g'; totFat.textContent = '60g'; totKcal.textContent = '2180';
+    if(bannerProt) bannerProt.textContent = '165g';
+    if(bannerCarb) bannerCarb.textContent = '240g';
+    if(bannerKcal) bannerKcal.textContent = '~2180';
     note.textContent = 'Giorno ON: carbo più alti attorno all\'allenamento, proteine alte, grassi moderati.';
     totNote.textContent = '✅ Giorno ON — deficit moderato mantenuto';
     totNote.style.color = 'var(--green)';
@@ -1230,6 +1238,9 @@ function setCutDay(day) {
     badgeMeals.textContent = 'OFF'; badgeMeals.className = 'section-badge blue';
     prot.textContent = '165g'; carb.textContent = '170g'; fat.textContent = '65g'; kcal.textContent = '1940';
     totProt.textContent = '165g'; totCarb.textContent = '170g'; totFat.textContent = '65g'; totKcal.textContent = '1940';
+    if(bannerProt) bannerProt.textContent = '165g';
+    if(bannerCarb) bannerCarb.textContent = '170g';
+    if(bannerKcal) bannerKcal.textContent = '~1940';
     note.textContent = 'Giorno OFF: togli il pre/post workout, carbo più bassi, più verdure e proteine magre.';
     totNote.textContent = '😴 Giorno OFF — deficit più profondo, carbo ridotti';
     totNote.style.color = 'var(--accent2)';
