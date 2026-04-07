@@ -35,9 +35,7 @@
   /* MACRO BANNER */
   .macro-banner {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
-    margin-bottom: 0;
-    position: sticky; top: 0; z-index: 100;
-    background: var(--bg); padding: 10px 0 6px;
+    margin-bottom: 16px;
   }
   .macro-card {
     background: var(--card); border-radius: var(--radius);
@@ -74,8 +72,8 @@
   /* DAY TOGGLE */
   .day-toggle {
     display: flex; gap: 8px; margin-bottom: 16px;
-    position: sticky; top: 78px; z-index: 99;
-    background: var(--bg); padding: 6px 0 8px;
+    position: sticky; top: 0; z-index: 99;
+    background: var(--bg); padding: 8px 0;
   }
   .day-btn {
     flex: 1; padding: 10px; border: none; border-radius: var(--radius);
@@ -1092,10 +1090,10 @@
 // Calcola dinamicamente la posizione del day-toggle dopo l'header
 function setDayTogglePosition() {
   const header = document.querySelector('header');
-  const dayToggle = document.querySelector('.day-toggle');
-  if (header && dayToggle) {
+  const dayToggles = document.querySelectorAll('.day-toggle');
+  if (header && dayToggles.length) {
     const headerHeight = header.offsetHeight;
-    dayToggle.style.top = headerHeight + 'px';
+    dayToggles.forEach(dt => dt.style.top = headerHeight + 'px');
   }
 }
 
