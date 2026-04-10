@@ -67,13 +67,12 @@
   .mini-card h4 { font-size: 0.82rem; color: var(--text); margin-bottom: 6px; }
   .mini-card p { font-size: 0.76rem; color: var(--muted); }
   .cut-off { display: none; }
-  .def-off { display: none; }
 
   /* DAY TOGGLE */
   .day-toggle {
     display: flex; gap: 8px; margin-bottom: 16px;
     position: sticky; top: 0; z-index: 99;
-    background: var(--bg); padding: 8px 0;
+    background: transparent; padding: 8px 0;
   }
   .day-btn {
     flex: 1; padding: 10px; border: none; border-radius: var(--radius);
@@ -620,27 +619,10 @@
   <!-- CUT PANEL -->
   <div id="panel-cut" class="plan-panel">
 
-  <!-- MACRO BANNER CUT -->
-  <div class="macro-banner">
-    <div class="macro-card">
-      <div class="val" id="cut-prot-banner">165g</div>
-      <div class="lbl">🥩 Proteine</div>
+    <div class="day-toggle" id="cut-day-toggle">
+      <button class="day-btn active-on" id="btn-on-cut" onclick="setCutDay('on')">🏋️ Giorno ON</button>
+      <button class="day-btn" id="btn-off-cut" onclick="setCutDay('off')">😴 Giorno OFF</button>
     </div>
-    <div class="macro-card blue">
-      <div class="val" id="cut-carb-banner">240g</div>
-      <div class="lbl">🍝 Carbo</div>
-    </div>
-    <div class="macro-card green">
-      <div class="val" id="cut-kcal-banner">~2180</div>
-      <div class="lbl">⚡ Kcal</div>
-    </div>
-  </div>
-
-  <!-- DAY TOGGLE CUT -->
-  <div class="day-toggle" id="cut-day-toggle">
-    <button class="day-btn active-on" id="btn-on-cut" onclick="setCutDay('on')">🏋️ Giorno ON</button>
-    <button class="day-btn" id="btn-off-cut" onclick="setCutDay('off')">😴 Giorno OFF</button>
-  </div>
 
     <div class="section" id="sec-cut-overview">
       <div class="section-header" onclick="toggle('sec-cut-overview')">
@@ -699,20 +681,112 @@
         </div>
 
         <div class="meal-card">
-          <h3>🍝 Pranzo</h3>
-          <ul class="food-list">
-            <li class="cut-on" style="display:block">100g riso basmati o <strong>120g pasta</strong></li>
-            <li class="cut-off">70g riso o <strong>70g pasta</strong></li>
-            <li>160g pollo/tacchino/tonno</li>
-            <li>Verdure abbondanti</li>
-            <li>10g olio EVO</li>
-          </ul>
-          <div class="macro-row">
-            <span class="macro-pill prot">🥩 ~42g</span>
-            <span class="macro-pill carb">🍝 ~72g ON / 48g OFF</span>
-            <span class="macro-pill fat">🧈 ~12g</span>
-            <span class="macro-pill kcal">⚡ ~580/450 kcal</span>
+          <h3>🍝 Pranzo — Scegli opzione</h3>
+
+          <!-- TAB ON -->
+          <div class="opt-tabs cut-on" style="display:flex; gap:6px; margin:10px 0 14px; flex-wrap:wrap;">
+            <button class="opt-tab active" onclick="selectOpt(this, 'cut-pranzo-on', 'cpo1')">🍚 Riso+Pollo</button>
+            <button class="opt-tab" onclick="selectOpt(this, 'cut-pranzo-on', 'cpo2')">🍝 Pasta+Tonno</button>
+            <button class="opt-tab" onclick="selectOpt(this, 'cut-pranzo-on', 'cpo3')">🌾 Cous Cous+Pollo</button>
           </div>
+
+          <div class="opt-content show cut-on cut-pranzo-item" id="cut-pranzo-on-cpo1">
+            <ul class="food-list" style="margin-top:8px">
+              <li>100g riso basmati crudo</li>
+              <li>160g pollo o tacchino grigliato</li>
+              <li>Verdure abbondanti</li>
+              <li>10g olio EVO</li>
+            </ul>
+            <div class="macro-row">
+              <span class="macro-pill prot">🥩 ~42g</span>
+              <span class="macro-pill carb">🍝 ~78g</span>
+              <span class="macro-pill fat">🧈 ~12g</span>
+              <span class="macro-pill kcal">⚡ ~580 kcal</span>
+            </div>
+          </div>
+
+          <div class="opt-content cut-on cut-pranzo-item" id="cut-pranzo-on-cpo2">
+            <ul class="food-list" style="margin-top:8px">
+              <li>120g pasta cruda</li>
+              <li>100g tonno al naturale o 90g sgombro</li>
+              <li>Verdure abbondanti</li>
+              <li>10g olio EVO</li>
+            </ul>
+            <div class="macro-row">
+              <span class="macro-pill prot">🥩 ~38g</span>
+              <span class="macro-pill carb">🍝 ~86g</span>
+              <span class="macro-pill fat">🧈 ~12g</span>
+              <span class="macro-pill kcal">⚡ ~590 kcal</span>
+            </div>
+          </div>
+
+          <div class="opt-content cut-on cut-pranzo-item" id="cut-pranzo-on-cpo3">
+            <ul class="food-list" style="margin-top:8px">
+              <li>100g cous cous crudo</li>
+              <li>160g pollo o tacchino grigliato</li>
+              <li>Verdure abbondanti</li>
+              <li>10g olio EVO</li>
+            </ul>
+            <div class="macro-row">
+              <span class="macro-pill prot">🥩 ~43g</span>
+              <span class="macro-pill carb">🍝 ~72g</span>
+              <span class="macro-pill fat">🧈 ~12g</span>
+              <span class="macro-pill kcal">⚡ ~570 kcal</span>
+            </div>
+          </div>
+
+          <!-- TAB OFF -->
+          <div class="opt-tabs cut-off" style="display:none; gap:6px; margin:10px 0 14px; flex-wrap:wrap;">
+            <button class="opt-tab active" onclick="selectOpt(this, 'cut-pranzo-off', 'cpoff1')">🍚 Riso+Pollo</button>
+            <button class="opt-tab" onclick="selectOpt(this, 'cut-pranzo-off', 'cpoff2')">🍝 Pasta+Tonno</button>
+            <button class="opt-tab" onclick="selectOpt(this, 'cut-pranzo-off', 'cpoff3')">🌾 Cous Cous+Pollo</button>
+          </div>
+
+          <div class="opt-content cut-off cut-pranzo-item" id="cut-pranzo-off-cpoff1">
+            <ul class="food-list" style="margin-top:8px">
+              <li>70g riso basmati crudo</li>
+              <li>160g pollo o tacchino grigliato</li>
+              <li>Verdure abbondanti</li>
+              <li>10g olio EVO</li>
+            </ul>
+            <div class="macro-row">
+              <span class="macro-pill prot">🥩 ~42g</span>
+              <span class="macro-pill carb">🍝 ~55g</span>
+              <span class="macro-pill fat">🧈 ~12g</span>
+              <span class="macro-pill kcal">⚡ ~460 kcal</span>
+            </div>
+          </div>
+
+          <div class="opt-content cut-off cut-pranzo-item" id="cut-pranzo-off-cpoff2">
+            <ul class="food-list" style="margin-top:8px">
+              <li>70g pasta cruda</li>
+              <li>100g tonno al naturale o 90g sgombro</li>
+              <li>Verdure abbondanti</li>
+              <li>10g olio EVO</li>
+            </ul>
+            <div class="macro-row">
+              <span class="macro-pill prot">🥩 ~38g</span>
+              <span class="macro-pill carb">🍝 ~50g</span>
+              <span class="macro-pill fat">🧈 ~12g</span>
+              <span class="macro-pill kcal">⚡ ~435 kcal</span>
+            </div>
+          </div>
+
+          <div class="opt-content cut-off cut-pranzo-item" id="cut-pranzo-off-cpoff3">
+            <ul class="food-list" style="margin-top:8px">
+              <li>70g cous cous crudo</li>
+              <li>160g pollo o tacchino grigliato</li>
+              <li>Verdure abbondanti</li>
+              <li>10g olio EVO</li>
+            </ul>
+            <div class="macro-row">
+              <span class="macro-pill prot">🥩 ~43g</span>
+              <span class="macro-pill carb">🍝 ~50g</span>
+              <span class="macro-pill fat">🧈 ~12g</span>
+              <span class="macro-pill kcal">⚡ ~455 kcal</span>
+            </div>
+          </div>
+
         </div>
 
         <div class="meal-card cut-on" id="cut-preworkout" style="display:block">
@@ -736,9 +810,7 @@
           <ul class="food-list">
             <li>200g pesce magro (merluzzo, spigola) o 2 uova + 200ml albume</li>
             <li class="cut-on" style="display:block">250g patate o 80g pane</li>
-            <li class="cut-off" style="color:var(--accent2)">😴 <strong>Giorno OFF:</strong> niente patate — solo verdure abbondanti + proteina.<br>
-              <span style="font-size:0.82rem; color:var(--muted)">Se hai molta fame: aggiungi 100g legumi cotti (ceci/lenticchie)</span>
-            </li>
+            <li class="cut-off">150g patate o solo verdure se sazio</li>
             <li>Verdure abbondanti</li>
             <li>10g olio EVO</li>
           </ul>
@@ -845,169 +917,22 @@
 
   <!-- DEFINIZIONE PANEL -->
   <div id="panel-definizione" class="plan-panel">
-
-  <!-- MACRO BANNER DEF -->
-  <div class="macro-banner">
-    <div class="macro-card">
-      <div class="val">175g</div>
-      <div class="lbl">🥩 Proteine</div>
-    </div>
-    <div class="macro-card blue">
-      <div class="val">130-160g</div>
-      <div class="lbl">🍝 Carbo</div>
-    </div>
-    <div class="macro-card green">
-      <div class="val">~1700</div>
-      <div class="lbl">⚡ Kcal</div>
-    </div>
-  </div>
-
-  <!-- DAY TOGGLE DEF -->
-  <div class="day-toggle">
-    <button class="day-btn active-on" id="btn-on-def" onclick="setDefDay('on')">🏋️ Giorno ON</button>
-    <button class="day-btn" id="btn-off-def" onclick="setDefDay('off')">😴 Giorno OFF</button>
-  </div>
-
-  <!-- ASSIOMI DEF -->
-  <div class="section" id="sec-def-axioms">
-    <div class="section-header" onclick="toggle('sec-def-axioms')">
-      <div class="section-title">⚡ Assiomi Definizione</div>
-      <span class="chevron">▼</span>
-    </div>
-    <div class="section-body">
-      <div class="axiom"><div class="axiom-num">1</div><p><strong>Proteine 170-180g fissi</strong> — massima protezione massa magra</p></div>
-      <div class="axiom"><div class="axiom-num">2</div><p><strong>Grassi: 50-60g/die</strong> — floor ormonale, non scendere sotto</p></div>
-      <div class="axiom"><div class="axiom-num">3</div><p><strong>Carbo ON:</strong> ~160g — solo attorno al workout, pochi la sera</p></div>
-      <div class="axiom"><div class="axiom-num">4</div><p><strong>Carbo OFF:</strong> ~80-100g — colazione + post workout se presente</p></div>
-      <div class="axiom"><div class="axiom-num">5</div><p><strong>Cardio aggiuntivo:</strong> LISS 30-40 min × 3-4/sett per accelerare il calo residuo</p></div>
-      <div class="axiom"><div class="axiom-num">6</div><p><strong>Check ogni 7 giorni:</strong> peso medio, girovita, foto, performance. Nessuna modifica senza dati.</p></div>
-      <div class="axiom"><div class="axiom-num">7</div><p><strong>Olio:</strong> max 10g/pasto — grassi da fonti proteiche (uova, pesce), non da olio</p></div>
-    </div>
-  </div>
-
-  <!-- PASTI DEF -->
-  <div class="section" id="sec-def-meals">
-    <div class="section-header" onclick="toggle('sec-def-meals')">
-      <div class="section-title">🍽️ Piano Pasti <span class="section-badge blue" id="badge-def-meals">IN COSTRUZIONE</span></div>
-      <span class="chevron">▼</span>
-    </div>
-    <div class="section-body" style="padding-top:12px">
-      <div class="alert orange"><span class="alert-icon">⏳</span><span>Il piano pasti dettagliato della definizione sarà costruito in base ai tuoi progressi reali al termine del Cut. I macro target sono già impostati sopra.</span></div>
-      <div class="meal-card">
-        <h3>☀️ Colazione — Fisso</h3>
-        <ul class="food-list">
-          <li>250g skyr 0%</li>
-          <li>40g avena</li>
-          <li>1 frutto (mela o kiwi)</li>
-        </ul>
-        <div class="macro-row">
-          <span class="macro-pill prot">🥩 ~30g</span>
-          <span class="macro-pill carb">🍝 ~43g</span>
-          <span class="macro-pill fat">🧈 ~4g</span>
-          <span class="macro-pill kcal">⚡ ~325 kcal</span>
+    <div class="section" id="sec-def-placeholder">
+      <div class="section-header" onclick="toggle('sec-def-placeholder')">
+        <div class="section-title">🧊 Dieta di Definizione <span class="section-badge blue">COMING</span></div>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="section-body" style="padding-top:12px">
+        <div class="alert orange"><span class="alert-icon">⏳</span><span>Questa sezione è riservata alla fase di definizione avanzata: si attiva quando avrai completato il cut iniziale e vorrai rifinire ulteriormente BF e composizione corporea.</span></div>
+        <div class="alert green"><span class="alert-icon">✅</span><span>Per ora usa <strong>Massa</strong> o <strong>Cut</strong> e tieni monitorati peso, girovita, BF e performance. La definizione sarà costruita in base ai tuoi progressi reali.</span></div>
+        <div class="mon-grid" style="margin-top:14px">
+          <div class="mon-card"><div class="icon">📉</div><h4>Calorie più basse</h4><p>Deficit più marcato ma controllato rispetto al cut</p></div>
+          <div class="mon-card"><div class="icon">🔄</div><h4>Cardio aggiuntivo</h4><p>LISS o HIIT per accelerare il calo residuo di BF</p></div>
+          <div class="mon-card"><div class="icon">🥩</div><h4>Proteine alte</h4><p>170-180g/die per preservare al massimo la massa</p></div>
+          <div class="mon-card"><div class="icon">📆</div><h4>Timing</h4><p>Si attiva dopo 6-8 sett di cut se BF > 12%</p></div>
         </div>
       </div>
-      <div class="meal-card">
-        <h3>🍝 Pranzo</h3>
-        <ul class="food-list">
-          <li class="def-on" style="display:block">80g riso/pasta (giorno ON)</li>
-          <li class="def-off" style="display:none">50g riso/pasta o solo verdure (giorno OFF)</li>
-          <li>180g pollo/tacchino/tonno</li>
-          <li>Verdure abbondanti</li>
-          <li>10g olio EVO</li>
-        </ul>
-        <div class="macro-row">
-          <span class="macro-pill prot">🥩 ~45g</span>
-          <span class="macro-pill carb">🍝 ~55g ON / 25g OFF</span>
-          <span class="macro-pill fat">🧈 ~12g</span>
-          <span class="macro-pill kcal">⚡ ~510/360 kcal</span>
-        </div>
-      </div>
-      <div class="meal-card def-on" id="def-preworkout" style="display:block">
-        <h3>💪 Pre-Workout <span style="font-size:0.75rem; color:var(--muted)">(solo giorno ON)</span></h3>
-        <ul class="food-list">
-          <li>4 gallette di riso</li>
-          <li>25g whey protein</li>
-        </ul>
-        <div class="macro-row">
-          <span class="macro-pill prot">🥩 ~26g</span>
-          <span class="macro-pill carb">🍝 ~28g</span>
-          <span class="macro-pill fat">🧈 ~2g</span>
-          <span class="macro-pill kcal">⚡ ~235 kcal</span>
-        </div>
-      </div>
-      <div class="off-note def-off" style="display:none">💪 <strong>Pre-workout: SALTA oggi</strong> — giorno OFF</div>
-      <div class="meal-card">
-        <h3>🌙 Cena</h3>
-        <ul class="food-list">
-          <li>220g pesce magro (merluzzo, sogliola) o 3 uova + 150ml albume</li>
-          <li class="def-on" style="display:block">150g patate (giorno ON)</li>
-          <li class="def-off" style="display:none">Solo verdure cena (giorno OFF)</li>
-          <li>Verdure abbondanti</li>
-          <li>5g olio EVO</li>
-        </ul>
-        <div class="macro-row">
-          <span class="macro-pill prot">🥩 ~45g</span>
-          <span class="macro-pill carb">🍝 ~32g ON / 8g OFF</span>
-          <span class="macro-pill fat">🧈 ~10g</span>
-          <span class="macro-pill kcal">⚡ ~400/310 kcal</span>
-        </div>
-      </div>
-      <div class="meal-card">
-        <h3>🌙 Pre-Nanna</h3>
-        <ul class="food-list">
-          <li>200g fiocchi di latte magri</li>
-          <li>10g frutta secca</li>
-        </ul>
-        <div class="macro-row">
-          <span class="macro-pill prot">🥩 ~22g</span>
-          <span class="macro-pill carb">🍝 ~6g</span>
-          <span class="macro-pill fat">🧈 ~8g</span>
-          <span class="macro-pill kcal">⚡ ~180 kcal</span>
-        </div>
-      </div>
-      <div style="margin-top:14px; padding:12px; background:var(--card); border-radius:10px; border:1px solid var(--border);">
-        <div style="font-size:0.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">📊 Totali Definizione</div>
-        <div class="totals-row">
-          <div class="total-cell"><div class="n">175g</div><div class="l">Prot</div></div>
-          <div class="total-cell blue"><div class="n">160g ON</div><div class="l">Carbo</div></div>
-          <div class="total-cell purple"><div class="n">~55g</div><div class="l">Grassi</div></div>
-          <div class="total-cell green"><div class="n">~1700</div><div class="l">Kcal</div></div>
-        </div>
-        <div style="font-size:0.78rem; margin-top:8px; color:var(--green);">✅ Deficit marcato — preserva muscolo con proteine alte</div>
-      </div>
     </div>
-  </div>
-
-  <!-- REGOLE DEF -->
-  <div class="section" id="sec-def-rules">
-    <div class="section-header" onclick="toggle('sec-def-rules')">
-      <div class="section-title">📋 Regole Definizione</div>
-      <span class="chevron">▼</span>
-    </div>
-    <div class="section-body" style="padding-top:12px">
-      <div class="alert green"><span class="alert-icon">📊</span><span><strong>Check settimanale:</strong> peso medio 7gg, girovita, foto stessa luce, performance palestra.</span></div>
-      <div class="alert orange"><span class="alert-icon">⏸️</span><span><strong>Diet break:</strong> ogni 4-6 settimane torna a normocalorica per 5-7 giorni — reintroduzione progressiva carbo.</span></div>
-      <div class="alert orange"><span class="alert-icon">💪</span><span><strong>Mantieni i carichi:</strong> se forza cala > 10% interrompi e fai diet break. La massa è sacra.</span></div>
-      <div class="alert red"><span class="alert-icon">❌</span><span><strong>STOP:</strong> Se BF scende sotto 8-9% o forza crolla → fine definizione, inizio mantenimento.</span></div>
-    </div>
-  </div>
-
-  <!-- MONITORAGGIO DEF -->
-  <div class="section" id="sec-def-mon">
-    <div class="section-header" onclick="toggle('sec-def-mon')">
-      <div class="section-title">📏 Monitoraggio</div>
-      <span class="chevron">▼</span>
-    </div>
-    <div class="section-body">
-      <div class="mon-grid">
-        <div class="mon-card"><div class="icon">⚖️</div><h4>Pesata</h4><p>Ogni lunedì mattina a digiuno</p><div class="target">-0.3-0.5kg/sett ✅</div></div>
-        <div class="mon-card"><div class="icon">📐</div><h4>Girovita</h4><p>Ogni settimana, mattino</p><div class="target">-0.5-1cm/2sett ✅</div></div>
-        <div class="mon-card"><div class="icon">📊</div><h4>BF%</h4><p>Ogni 2 settimane con Omron</p><div class="target" style="color:var(--red)">STOP sotto 8%</div></div>
-        <div class="mon-card"><div class="icon">💪</div><h4>Forza</h4><p>Ogni allenamento</p><div class="target">Non deve calare > 10%</div></div>
-      </div>
-    </div>
-  </div>
   </div><!-- /panel-definizione -->
 
   <!-- TRACKER DATI -->
@@ -1092,10 +1017,10 @@
 // Calcola dinamicamente la posizione del day-toggle dopo l'header
 function setDayTogglePosition() {
   const header = document.querySelector('header');
-  const dayToggles = document.querySelectorAll('.day-toggle');
-  if (header && dayToggles.length) {
+  const dayToggle = document.querySelector('.day-toggle');
+  if (header && dayToggle) {
     const headerHeight = header.offsetHeight;
-    dayToggles.forEach(dt => dt.style.top = headerHeight + 'px');
+    dayToggle.style.top = headerHeight + 'px';
   }
 }
 
@@ -1184,21 +1109,6 @@ function setPlan(plan) {
   setDayTogglePosition();
 }
 
-
-function setDefDay(day) {
-  const btnOn = document.getElementById('btn-on-def');
-  const btnOff = document.getElementById('btn-off-def');
-  if(day === 'on') {
-    if(btnOn) btnOn.className = 'day-btn active-on';
-    if(btnOff) btnOff.className = 'day-btn';
-  } else {
-    if(btnOn) btnOn.className = 'day-btn';
-    if(btnOff) btnOff.className = 'day-btn active-off';
-  }
-  document.querySelectorAll('.def-on').forEach(el => el.style.display = day === 'on' ? 'block' : 'none');
-  document.querySelectorAll('.def-off').forEach(el => el.style.display = day === 'off' ? 'block' : 'none');
-}
-
 function setCutDay(day) {
   const btnOn = document.getElementById('btn-on-cut');
   const btnOff = document.getElementById('btn-off-cut');
@@ -1214,9 +1124,6 @@ function setCutDay(day) {
   const totFat = document.getElementById('cut-tot-fat');
   const totKcal = document.getElementById('cut-tot-kcal');
   const totNote = document.getElementById('cut-tot-note');
-  const bannerProt = document.getElementById('cut-prot-banner');
-  const bannerCarb = document.getElementById('cut-carb-banner');
-  const bannerKcal = document.getElementById('cut-kcal-banner');
 
   if (day === 'on') {
     btnOn.className = 'day-btn active-on';
@@ -1225,9 +1132,6 @@ function setCutDay(day) {
     badgeMeals.textContent = 'ON'; badgeMeals.className = 'section-badge green';
     prot.textContent = '165g'; carb.textContent = '240g'; fat.textContent = '60g'; kcal.textContent = '2180';
     totProt.textContent = '165g'; totCarb.textContent = '240g'; totFat.textContent = '60g'; totKcal.textContent = '2180';
-    if(bannerProt) bannerProt.textContent = '165g';
-    if(bannerCarb) bannerCarb.textContent = '240g';
-    if(bannerKcal) bannerKcal.textContent = '~2180';
     note.textContent = 'Giorno ON: carbo più alti attorno all\'allenamento, proteine alte, grassi moderati.';
     totNote.textContent = '✅ Giorno ON — deficit moderato mantenuto';
     totNote.style.color = 'var(--green)';
@@ -1238,15 +1142,32 @@ function setCutDay(day) {
     badgeMeals.textContent = 'OFF'; badgeMeals.className = 'section-badge blue';
     prot.textContent = '165g'; carb.textContent = '170g'; fat.textContent = '65g'; kcal.textContent = '1940';
     totProt.textContent = '165g'; totCarb.textContent = '170g'; totFat.textContent = '65g'; totKcal.textContent = '1940';
-    if(bannerProt) bannerProt.textContent = '165g';
-    if(bannerCarb) bannerCarb.textContent = '170g';
-    if(bannerKcal) bannerKcal.textContent = '~1940';
     note.textContent = 'Giorno OFF: togli il pre/post workout, carbo più bassi, più verdure e proteine magre.';
     totNote.textContent = '😴 Giorno OFF — deficit più profondo, carbo ridotti';
     totNote.style.color = 'var(--accent2)';
   }
-  document.querySelectorAll('.cut-on').forEach(el => el.style.display = day === 'on' ? 'block' : 'none');
-  document.querySelectorAll('.cut-off').forEach(el => el.style.display = day === 'off' ? 'block' : 'none');
+  // Visibilità cut-on/off standard (escludi gli opt-content del pranzo)
+  document.querySelectorAll('.cut-on:not(.cut-pranzo-item)').forEach(el => el.style.display = day === 'on' ? 'block' : 'none');
+  document.querySelectorAll('.cut-off:not(.cut-pranzo-item)').forEach(el => el.style.display = day === 'off' ? 'block' : 'none');
+
+  // Fix: i tab ON usano flex non block
+  document.querySelectorAll('.opt-tabs.cut-on').forEach(el => el.style.display = day === 'on' ? 'flex' : 'none');
+  document.querySelectorAll('.opt-tabs.cut-off').forEach(el => el.style.display = day === 'off' ? 'flex' : 'none');
+
+  // Reset selezione pranzo al cambio giorno — usa classe "show"
+  if (day === 'on') {
+    ['cut-pranzo-on-cpo1','cut-pranzo-on-cpo2','cut-pranzo-on-cpo3'].forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (el) { el.classList.toggle('show', i === 0); }
+    });
+    document.querySelectorAll('.opt-tabs.cut-on .opt-tab').forEach((b, i) => b.classList.toggle('active', i === 0));
+  } else {
+    ['cut-pranzo-off-cpoff1','cut-pranzo-off-cpoff2','cut-pranzo-off-cpoff3'].forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (el) { el.classList.toggle('show', i === 0); }
+    });
+    document.querySelectorAll('.opt-tabs.cut-off .opt-tab').forEach((b, i) => b.classList.toggle('active', i === 0));
+  }
 }
 
 // ====== FIREBASE CONFIG ======
@@ -1314,8 +1235,8 @@ function addMeasurement() {
 }
 
 function renderMeasurements() {
-  const tbodyIds = ['data-tbody', 'data-tbody-massa', 'data-tbody-cut', 'data-tbody-def', 'data-tbody-def2'];
-  const emptyIds = ['data-empty', 'data-empty-massa', 'data-empty-cut', 'data-empty-def', 'data-empty-def2'];
+  const tbodyIds = ['data-tbody', 'data-tbody-massa', 'data-tbody-cut', 'data-tbody-def'];
+  const emptyIds = ['data-empty', 'data-empty-massa', 'data-empty-cut', 'data-empty-def'];
 
   tbodyIds.forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = ''; });
 
