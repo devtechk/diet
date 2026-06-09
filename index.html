@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🏋️ Piano Nutrizione — fathergym</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <style>
   :root {
     --bg: #0f0f13;
@@ -25,23 +27,28 @@
     border-bottom: 2px solid var(--accent);
     padding: 16px 16px 12px;
     text-align: center;
-    position: sticky; top: 0; z-index: 200;
   }
   header h1 { font-size: 1.3rem; color: var(--accent); font-weight: 800; }
   header p { color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
 
+  .sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    background: var(--bg);
+    padding-top: env(safe-area-inset-top, 0);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+  }
+
   .container { max-width: 700px; margin: 0 auto; padding: 0 16px 40px; }
+  .container--nav { padding-bottom: 8px; }
 
   /* ═══ PLAN TOGGLE ═══ */
   .plan-toggle {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
-    position: sticky;
-    top: 62px;
-    z-index: 150;
-    background: var(--bg);
-    padding: 10px 0 8px;
+    padding: 8px 0 6px;
   }
   .plan-btn {
     padding: 13px 6px;
@@ -55,6 +62,11 @@
     transition: all 0.2s;
     text-align: center;
     width: 100%;
+    min-height: 48px;
+    line-height: 1.2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .plan-btn:hover { border-color: #3d3d4a; color: var(--text); }
   .plan-btn.active {
@@ -98,13 +110,10 @@
   .day-toggle {
     display: flex;
     gap: 8px;
-    margin-bottom: 16px;
-    position: sticky;
-    top: 138px;
-    z-index: 140;
-    background: var(--bg);
-    padding: 6px 0;
+    padding: 6px 0 2px;
+    border-top: 1px solid var(--border);
   }
+  .day-toggle.hidden { display: none; }
   .day-btn {
     flex: 1; padding: 11px;
     border: 2px solid var(--border);
@@ -205,21 +214,33 @@
 </style>
 </head>
 <body>
-<div style="margin:10px 0;padding:10px 12px;border:1px solid #2b2f3a;border-radius:10px;color:#b7f7c1;background:#13161d;font-size:0.85rem;">✅ VERIFICATO: macro corretti su massa, cut e definizione; OFF cut non scende a 100g proteine.</div>
+<div class="sticky-top">
+  <header>
+    <h1>🏋️ Piano Nutrizione — fathergym</h1>
+    <p>Project Invictus · Ipertrofia &amp; Performance</p>
+  </header>
 
-<header>
-  <h1>🏋️ Piano Nutrizione — fathergym</h1>
-  <p>Project Invictus · Ipertrofia &amp; Performance</p>
-</header>
+  <div class="container container--nav">
+    <div class="plan-toggle">
+      <button class="plan-btn active" id="btn-massa" onclick="setPlan('massa')">🏋️ Massa</button>
+      <button class="plan-btn" id="btn-cut" onclick="setPlan('cut')">✂️ Cut</button>
+      <button class="plan-btn pending" id="btn-def" onclick="setPlan('definizione')">🧊 Definizione</button>
+    </div>
+
+    <div class="day-toggle" id="day-toggle-massa">
+      <button class="day-btn on-active" id="btn-on-massa" onclick="setMassaDay('on')">🔥 Giorno ON</button>
+      <button class="day-btn" id="btn-off-massa" onclick="setMassaDay('off')">🌙 Giorno OFF</button>
+    </div>
+
+    <div class="day-toggle hidden" id="day-toggle-cut">
+      <button class="day-btn on-active" id="btn-on-cut" onclick="setCutDay('on')">🔥 Giorno ON</button>
+      <button class="day-btn" id="btn-off-cut" onclick="setCutDay('off')">🌙 Giorno OFF</button>
+    </div>
+  </div>
+</div>
 
 <div class="container">
-
-  <!-- ═══════════════════════ PLAN TOGGLE ═══════════════════════ -->
-  <div class="plan-toggle">
-    <button class="plan-btn active" id="btn-massa" onclick="setPlan('massa')">🏋️ Massa</button>
-    <button class="plan-btn" id="btn-cut" onclick="setPlan('cut')">✂️ Cut</button>
-    <button class="plan-btn pending" id="btn-def" onclick="setPlan('definizione')">🧊 Definizione</button>
-  </div>
+  <div style="margin:10px 0;padding:10px 12px;border:1px solid #2b2f3a;border-radius:10px;color:#b7f7c1;background:#13161d;font-size:0.85rem;">✅ VERIFICATO: macro corretti su massa, cut e definizione; OFF cut non scende a 100g proteine.</div>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!--                     PANEL MASSA                            -->
@@ -243,12 +264,6 @@
       ✅ <strong>Pesata</strong> lunedì mattina → +300-500g/sett = massa pulita ✅<br>
       ✅ <strong>Sgarro:</strong> max 1/sett — proteine SEMPRE fisse<br>
       ✅ <strong>Olio:</strong> 20g pranzo + 20g cena (NON 10g)
-    </div>
-
-    <!-- Day Toggle Massa -->
-    <div class="day-toggle">
-      <button class="day-btn on-active" id="btn-on-massa" onclick="setMassaDay('on')">🔥 Giorno ON</button>
-      <button class="day-btn" id="btn-off-massa" onclick="setMassaDay('off')">🌙 Giorno OFF</button>
     </div>
 
     <!-- ON Massa -->
@@ -494,12 +509,6 @@
       ✅ <strong>Fibra 25-35g/die</strong> — avena, verdure, legumi, frutta<br>
       ✅ <strong>Acqua: 2-2.5L/die</strong> — non tagliare il sodio<br>
       ✅ <strong>Check ogni 14 giorni</strong> — peso medio, girovita, foto, performance
-    </div>
-
-    <!-- Day Toggle Cut -->
-    <div class="day-toggle">
-      <button class="day-btn on-active" id="btn-on-cut" onclick="setCutDay('on')">🔥 Giorno ON</button>
-      <button class="day-btn" id="btn-off-cut" onclick="setCutDay('off')">🌙 Giorno OFF</button>
     </div>
 
     <!-- ON Cut -->
@@ -845,6 +854,30 @@
     </div>
     <div class="section-body">
 
+      <!-- Tabella log dinamica (Firebase) -->
+      <div style="font-size:0.9rem;font-weight:700;color:var(--text);margin-bottom:8px;">📈 Cronologia Misurazioni</div>
+      <div style="font-size:0.75rem;color:var(--muted);margin-bottom:6px;">📅 Inserisci ogni lunedì mattina a digiuno · sincronizzato su Firebase</div>
+      <div id="log-empty" style="padding:16px;text-align:center;color:var(--muted);font-size:0.85rem;display:none;">
+        Nessuna misurazione registrata ancora. Aggiungi la prima!
+      </div>
+      <div style="overflow-x:auto;margin-bottom:16px;">
+        <table class="log-table" id="log-table">
+          <thead>
+            <tr>
+              <th>📅 Data</th>
+              <th>⚖️ kg</th>
+              <th>🔥 VF%</th>
+              <th>⚡RM</th>
+              <th>💪 Mus%</th>
+              <th>📊 Fat%</th>
+              <th>📐 BMI</th>
+              <th>🗑️</th>
+            </tr>
+          </thead>
+          <tbody id="log-table-body"></tbody>
+        </table>
+      </div>
+
       <!-- Storico fisso -->
       <table class="prog-table" style="margin-bottom:14px">
         <tr><th>Parametro</th><th>30 Gen</th><th>3 Mar</th><th>Variazione</th></tr>
@@ -894,23 +927,6 @@
         <div style="clear:both"></div>
       </div>
 
-      <!-- Tabella log dinamica -->
-      <div style="font-size:0.75rem;color:var(--muted);margin-bottom:6px;">📅 Inserisci ogni lunedì mattina a digiuno · salvato in locale sul dispositivo</div>
-      <div style="overflow-x:auto;">
-        <table class="log-table" id="log-table-body">
-          <tr>
-            <th>📅 Data</th>
-            <th>⚖️ kg</th>
-            <th>🔥 VF%</th>
-            <th>⚡RM</th>
-            <th>💪 Mus%</th>
-            <th>📊 Fat%</th>
-            <th>📐 BMI</th>
-            <th>🗑️</th>
-          </tr>
-        </table>
-      </div>
-
     </div>
   </div>
 
@@ -936,6 +952,11 @@ function setPlan(plan) {
   const b = document.getElementById(btnMap[plan]);
   if (p) p.style.display = 'block';
   if (b) b.classList.add(classMap[plan]);
+
+  const dayToggleMassa = document.getElementById('day-toggle-massa');
+  const dayToggleCut = document.getElementById('day-toggle-cut');
+  if (dayToggleMassa) dayToggleMassa.classList.toggle('hidden', plan !== 'massa');
+  if (dayToggleCut) dayToggleCut.classList.toggle('hidden', plan !== 'cut');
 }
 
 function setMassaDay(day) {
@@ -974,78 +995,141 @@ function toggleSection(header) {
   header.parentElement.classList.toggle('open');
 }
 
-// Init
+// ====== FIREBASE CONFIG ======
+const firebaseConfig = {
+  apiKey: 'AIzaSyDEnctfRW_6nghGgLfIWoAe7Y8-Wk_f968',
+  authDomain: 'diet-df690.firebaseapp.com',
+  databaseURL: 'https://diet-df690-default-rtdb.firebaseio.com',
+  projectId: 'diet-df690',
+  storageBucket: 'diet-df690.firebasestorage.app',
+  messagingSenderId: '211424108641',
+  appId: '1:211424108641:web:99f28b7034a27fb08f4a20'
+};
 
-// ── LOG PROGRESSI (localStorage) ──
-const LOG_KEY = 'fathergym_log_v1';
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const currentUser = 'antoninogiuliano';
 
-function getLog() {
-  try { return JSON.parse(localStorage.getItem(LOG_KEY)) || []; }
-  catch(e) { return []; }
+function formatDateIt(isoDate) {
+  const [year, month, day] = isoDate.split('-');
+  return `${day}/${month}/${year}`;
 }
 
-function saveLog(entries) {
-  localStorage.setItem(LOG_KEY, JSON.stringify(entries));
-}
+function renderLogFromSnapshot(snapshot) {
+  const tbody = document.getElementById('log-table-body');
+  const emptyEl = document.getElementById('log-empty');
+  if (!tbody) return;
 
-function renderLog() {
-  const entries = getLog();
-  const table = document.getElementById('log-table-body');
-  if (!table) return;
-  // Remove all rows except header
-  while (table.rows.length > 1) table.deleteRow(1);
-  entries.forEach((e, i) => {
-    const tr = table.insertRow();
+  tbody.innerHTML = '';
+  const data = snapshot.val();
+
+  if (!data || Object.keys(data).length === 0) {
+    if (emptyEl) emptyEl.style.display = 'block';
+    return;
+  }
+
+  if (emptyEl) emptyEl.style.display = 'none';
+
+  const entries = Object.entries(data)
+    .map(([id, val]) => ({ id, ...val }))
+    .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+  entries.forEach((entry) => {
+    const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${e.date || '—'}</td>
-      <td style="color:var(--accent);font-weight:700">${e.kg || '—'}</td>
-      <td>${e.vf || '—'}</td>
-      <td>${e.rm || '—'}</td>
-      <td>${e.mus || '—'}</td>
-      <td>${e.fat || '—'}</td>
-      <td>${e.bmi || '—'}</td>
-      <td><button onclick="deleteLogEntry(${i})" style="background:transparent;border:none;color:var(--red);cursor:pointer;font-size:1rem;">🗑️</button></td>
+      <td>${entry.date || '—'}${entry.time ? `<br><span style="color:var(--muted);font-size:0.75rem;">${entry.time}</span>` : ''}</td>
+      <td style="color:var(--accent);font-weight:700">${entry.peso ?? '—'}</td>
+      <td>${entry.vf ?? '—'}</td>
+      <td>${entry.rm ?? '—'}</td>
+      <td>${entry.muscle ?? '—'}</td>
+      <td>${entry.fatPct ?? '—'}</td>
+      <td>${entry.bmi ?? '—'}</td>
+      <td><button onclick="deleteLogEntry('${entry.id}')" style="background:transparent;border:none;color:var(--red);cursor:pointer;font-size:1rem;">🗑️</button></td>
     `;
+    tbody.appendChild(tr);
   });
 }
 
 function saveLogEntry() {
   const date = document.getElementById('log-date').value;
-  const kg   = document.getElementById('log-kg').value;
-  const vf   = document.getElementById('log-vf').value;
-  const rm   = document.getElementById('log-rm').value;
-  const mus  = document.getElementById('log-mus').value;
-  const fat  = document.getElementById('log-fat').value;
-  const bmi  = document.getElementById('log-bmi').value;
-  if (!date || !kg) { alert('Inserisci almeno data e peso!'); return; }
-  const entries = getLog();
-  entries.unshift({ date, kg, vf, rm, mus, fat, bmi });
-  saveLog(entries);
-  renderLog();
-  // Clear inputs
-  ['log-date','log-kg','log-vf','log-rm','log-mus','log-fat','log-bmi'].forEach(id => {
-    document.getElementById(id).value = '';
+  const kg = document.getElementById('log-kg').value;
+  const vf = document.getElementById('log-vf').value;
+  const rm = document.getElementById('log-rm').value;
+  const mus = document.getElementById('log-mus').value;
+  const fat = document.getElementById('log-fat').value;
+  const bmi = document.getElementById('log-bmi').value;
+
+  if (!date || !kg || !vf || !rm || !mus || !fat || !bmi) {
+    alert('❌ Compila tutti i campi!');
+    return;
+  }
+
+  const now = new Date();
+  const measurement = {
+    date: formatDateIt(date),
+    time: now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }),
+    peso: parseFloat(kg),
+    vf: parseFloat(vf),
+    rm: parseFloat(rm),
+    muscle: parseFloat(mus),
+    fatPct: parseFloat(fat),
+    bmi: parseFloat(bmi),
+    timestamp: now.getTime()
+  };
+
+  db.ref(`users/${currentUser}/measurements`).push(measurement, (error) => {
+    if (error) {
+      alert('❌ Errore nel salvataggio: ' + error.message);
+      return;
+    }
+
+    ['log-kg', 'log-vf', 'log-rm', 'log-mus', 'log-fat', 'log-bmi'].forEach((id) => {
+      document.getElementById(id).value = '';
+    });
+    alert('✅ Misurazione salvata su Firebase!');
   });
 }
 
-function deleteLogEntry(index) {
-  const entries = getLog();
-  entries.splice(index, 1);
-  saveLog(entries);
-  renderLog();
+function confirmTwice(firstMessage, secondMessage) {
+  if (!confirm(firstMessage)) return false;
+  return confirm(secondMessage);
+}
+
+function deleteLogEntry(id) {
+  if (!confirmTwice(
+    'Eliminare questa misurazione?',
+    'Confermi davvero? L\'operazione non si può annullare.'
+  )) return;
+
+  db.ref(`users/${currentUser}/measurements/${id}`).remove((error) => {
+    if (error) {
+      alert('❌ Errore nell\'eliminazione: ' + error.message);
+    }
+  });
 }
 
 function clearLog() {
-  if (confirm('Cancellare tutto il log? Non si può annullare.')) {
-    saveLog([]);
-    renderLog();
-  }
+  if (!confirmTwice(
+    '⚠️ Sei sicuro? Eliminerai TUTTI i dati registrati!',
+    'Ultima conferma: cancellare definitivamente tutte le misurazioni?'
+  )) return;
+
+  db.ref(`users/${currentUser}/measurements`).remove((error) => {
+    if (error) {
+      alert('❌ Errore: ' + error.message);
+    } else {
+      alert('✅ Dati eliminati');
+    }
+  });
 }
+
+db.ref(`users/${currentUser}/measurements`).on('value', renderLogFromSnapshot, (error) => {
+  console.error('Errore listener Firebase:', error);
+  alert('❌ Impossibile caricare le misurazioni da Firebase: ' + error.message);
+});
 
 document.addEventListener('DOMContentLoaded', function() {
   setPlan('massa');
-  renderLog();
-  // Pre-fill today's date
   const d = document.getElementById('log-date');
   if (d) d.valueAsDate = new Date();
 });
